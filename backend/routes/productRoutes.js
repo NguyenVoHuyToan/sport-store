@@ -2,38 +2,50 @@ const express = require("express");
 const router = express.Router();
 const Product = require("../model/Product");
 const mongoose = require("mongoose");
-const auth = require("../middleware/auth");
+const authMiddleware = require("../middleware/authMiddleware");
 
 //Lay danh sach san pham
 router.get("/", async (req, res) => {
   try {
-    const { category, priceRange } = req.query;
+    const { category, priceRange, brand, shoeSize, clothingSize } = req.query;
     let query = {};
 
-    if (category) {
-      query.category = category;
-    }
+    // Lọc theo danh mục
+    if (category) query.category = category;
 
-    if (typeof priceRange === "string" && priceRange.includes(",")) {
-      const rangeValues = priceRange.split(",");
-      const min = Number(rangeValues[0]);
-      const max = Number(rangeValues[1]);
-
-      // Kiểm tra giá trị hợp lệ
+    // Lọc theo khoảng giá (priceRange dạng "min,max")
+    if (priceRange && typeof priceRange === "string") {
+      const [min, max] = priceRange.split(",").map(Number);
       if (!isNaN(min) && !isNaN(max)) {
         query.price = { $gte: min, $lte: max };
+      } else {
+        console.warn("priceRange không hợp lệ:", priceRange);
       }
     }
 
-    console.log("Query filter:", query); // Debug filter query
+    // Lọc theo thương hiệu
+    if (brand) query.brand = brand;
+
+    // Lọc theo size giày (shoeSize là mảng)
+    if (shoeSize) {
+      const sizes = shoeSize.split(",").map(Number).filter((s) => !isNaN(s));
+      if (sizes.length) query.shoeSizes = { $in: sizes };
+    }
+
+    // Lọc theo size quần áo (clothingSize là mảng)
+    if (clothingSize) {
+      const sizes = clothingSize.split(",").filter((s) => s.trim() !== "");
+      if (sizes.length) query.clothingSizes = { $in: sizes };
+    }
 
     const products = await Product.find(query);
     res.json(products);
   } catch (err) {
-    console.error("Lỗi khi lấy sản phẩm:", err); // In lỗi chi tiết
-    res.status(500).json({ msg: "Lỗi server", error: err.message });
+    console.error("Lỗi khi lấy sản phẩm:", err);
+    res.status(500).json({ msg: "Lỗi server" });
   }
 });
+
 // Tim san pham
 router.get("/search", async (req, res) => {
   const query = req.query.q; //lay tu khoa tim kiem tu query
@@ -82,11 +94,53 @@ router.get("/:id", async (req, res) => {
     return res.status(400).send("Invalid ID");
   }
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    const product = await Product.findById(req.params.id).populate("reviews.user", "name");
+    if (!product) return res.status(404).json({ msg: "Sản phẩm không tồn tại" });
+
     res.json(product);
   } catch (err) {
-    res.status(500).send("Internal server error");
+    res.status(500).json({ msg: "Lỗi server" });
+  }
+});
+
+router.get("/:id/similar", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ msg: "Sản phẩm không tồn tại" });
+
+    const similarProducts = await Product.find({
+      category: product.category,
+      _id: { $ne: product._id }, // Loại trừ sản phẩm hiện tại
+    }).limit(4);
+
+    res.json(similarProducts);
+  } catch (err) {
+    res.status(500).json({ msg: "Lỗi server" });
+  }
+});
+
+router.post("/:id/review", authMiddleware, async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    if (!rating || !comment) {
+      return res.status(400).json({ msg: "Vui lòng nhập đầy đủ thông tin" });
+    }
+
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ msg: "Sản phẩm không tồn tại" });
+
+    const newReview = { 
+      user: req.user.id, // Lấy user từ token
+      rating, 
+      comment 
+    };
+
+    product.reviews.push(newReview);
+    await product.save();
+
+    res.json({ msg: "Đánh giá thành công", reviews: product.reviews });
+  } catch (err) {
+    res.status(500).json({ msg: "Lỗi server" });
   }
 });
 
