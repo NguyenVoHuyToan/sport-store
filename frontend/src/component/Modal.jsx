@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 
 const Modal = ({isOpen, onClose, results}) => {
     if(!isOpen) return null;
@@ -15,11 +16,11 @@ const Modal = ({isOpen, onClose, results}) => {
       {results.length > 0 ? (
         <div className="grid grid-cols-3 gap-4">
           {results.map((product) => (
-            <div key={product._id} className="border p-3 rounded-lg text-center">
+            <Link to={`/product/${product._id}`} key={product._id} className="border p-3 rounded-lg text-center">
               <img src={product.image} alt={product.name} className="w-full h-32 object-cover rounded" />
               <h3 className="text-black text-lg font-medium mt-2 py-2">{product.name}</h3>
               <p className="text-red-500 font-semibold py-2">{product.price} VND</p>
-            </div>
+            </Link>
           ))}
         </div>
       ) : (

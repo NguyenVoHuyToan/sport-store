@@ -1,8 +1,8 @@
-import React from "react";
-import { useState } from "react";
+import { motion } from "framer-motion";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from "../store/authSlice";
 import { useNavigate } from "react-router-dom";
+import { loginSuccess } from "../store/authSlice";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -28,55 +28,74 @@ const Register = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-l from-purple-900 to-gray-800 flex justify-center items-center relative overflow-hidden">
-      <div className="absolute inset-0 -z-10 animate-slide">
-        <div className="bg-blur"></div>
+    <div className="h-screen w-full flex flex-col justify-start items-center bg-gray-100">
+      <div className="w-full px-4 py-2 text-gray-600">
+        <a href="/" className="hover:underline">
+          Trang chủ
+        </a>
+        <span className="mx-2">{">"}</span>
+        <span className="text-gray-800">Đăng ký tài khoản</span>
       </div>
-      <div className="bg-white bg-opacity-10 border border-gray-500 rounded-xl p-8 w-[400px] shadow-lg backdrop-blur-md">
-        <h1 className="text-center text-white text-3xl font-bold mb-6">
-          Đăng Ký
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white p-8 rounded-lg shadow-lg w-[400px]"
+      >
+        <h1 className="text-center text-red-600 text-2xl font-bold mb-4">
+          ĐĂNG KÝ
         </h1>
-        <div className="mb-4">
-          <label className="text-white block mb-2">Tên</label>
+        <p className="text-center text-gray-600 mb-4">
+          Đã có tài khoản,{" "}
+          <a href="/login" className="text-red-500 font-semibold">
+            đăng nhập tại đây
+          </a>
+        </p>
+        <div className="mb-3">
           <input
-            className="w-full p-3 border-b border-white bg-transparent text-white placeholder-gray-300 focus:outline:-none"
+            className="w-full p-3 border rounded-lg"
             type="text"
-            placeholder="Nhập tên của bạn"
+            placeholder="Tên"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
-        <div className="mb-4">
-          <lable className="text-white block mb-2">Email</lable>
+        <div className="mb-3">
           <input
-            className="w-full p-3 border-b border-white bg-transparent text-white placeholder-gray-300 focus:outline:-none"
+            className="w-full p-3 border rounded-lg"
             type="email"
-            placeholder="Nhập email đăng ký (vd: helo123@...)"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <div className="mb-4">
-          <label className="text-white block mb-2">Mật Khẩu</label>
+        <div className="mb-3">
           <input
-            className="w-full p-3 border-b border-white bg-transparent text-white placeholder-gray-300 focus:outline:-none"
+            className="w-full p-3 border rounded-lg"
             type="password"
-            placeholder="Nhập mật khẩu của bạn"
+            placeholder="Mật khẩu"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button
+        <motion.button
           onClick={handleRegister}
-          className="w-full bg-white text-black rounded-full mt-3 py-3 font-semibold hover:bg-gray-200 transition-all"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="w-full bg-red-600 text-white rounded-lg py-3 font-semibold hover:bg-red-700 transition-all"
         >
-          Đăng Ký
-        </button>
-        <p className="text-white text-center mt-4">
-          Bạn đã có tài khoản ? 
-          <a href="/login" className="font-semibold hover:text-gray-300 ml-2">Đăng Nhập</a>
-        </p>
-      </div>
+          ĐĂNG KÝ
+        </motion.button>
+        <p className="text-center text-gray-600 mt-4">Hoặc đăng nhập bằng</p>
+        <div className="flex justify-center gap-4 mt-3">
+          <button className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg">
+            <i className="fab fa-facebook"></i> Facebook
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg">
+            <i className="fab fa-google"></i> Google
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ const authSlice = createSlice({
     initialState: {
         user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null,
         token: localStorage.getItem("token") || null,
+        role: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).role : null,
     },
     reducers: {
         loginSuccess: (state, action) => {
@@ -20,8 +21,14 @@ const authSlice = createSlice({
             localStorage.removeItem("user");
             localStorage.removeItem('token');
         },
+        updateAvatar: (state, action) => {
+            if (state.user) {
+                state.user.avatar = action.payload;
+                localStorage.setItem("user", JSON.stringify(state.user)); // Cập nhật lại localStorage
+            }
+        },
     },
 });
 
-export const {loginSuccess, logout} = authSlice.actions;
+export const { loginSuccess, logout, updateAvatar } = authSlice.actions;
 export default authSlice.reducer;

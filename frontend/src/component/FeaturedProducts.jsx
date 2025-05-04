@@ -16,7 +16,6 @@ const FeaturedProducts = () => {
     axios
       .get("http://localhost:5000/api/products/featured")
       .then((res) => {
-        console.log("dữ liệu tải", res.data)
         setProducts(res.data);
         setLoading(false);
       })
@@ -27,11 +26,7 @@ const FeaturedProducts = () => {
   }, []);
 
   return (
-    <div className="container max-w-4xl mx-auto my-12 px-4 ">
-      <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-        Sản phẩm tiêu biểu
-      </h2>
-
+    <div className="container max-w-4xl mx-auto my-2 px-4 ">
       {loading ? (
         <p className="text-center text-gray-600">Đang tải sản phẩm...</p>
       ) : products.length === 0 ? (
@@ -40,8 +35,6 @@ const FeaturedProducts = () => {
         <Swiper
           modules={[Autoplay, Navigation, Pagination]}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
-          navigation
-          pagination={{ clickable: true }}
           spaceBetween={20}
           slidesPerView={4}
           breakpoints={{

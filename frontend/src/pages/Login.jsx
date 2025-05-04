@@ -2,7 +2,7 @@ import React, { Children, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginSuccess } from "../store/authSlice";
-
+import { motion } from "framer-motion";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,7 +12,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     setLoading(true);
-    try{
+    try {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -21,68 +21,84 @@ const Login = () => {
 
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem("token",data.token);
+        localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         dispatch(loginSuccess(data));
-        if(data.user.role === "admin"){
+        if (data.user.role === "admin") {
           navigate("/admin/dashboard");
-        }else {
+        } else {
           navigate("/");
-        };
-      }else {
+        }
+      } else {
         alert(data.msg || "Đăng nhập thất bại");
       }
-    }catch (error) {
+    } catch (error) {
       alert("Xảy ra lỗi, vui lòng thử lại");
       console.log(error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-};
+  };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-l from-purple-900 to-gray-800 flex justify-center items-center relative overflow-hidden">
-      <div className="absolute inset-0 -z-10 animate-slide">
-        <div className="bg-blur"></div>
+    <div className="h-screen flex flex-col justify-start items-center bg-gray-100">
+       <div className="w-full px-4 py-2 text-gray-600">
+        <a href="/" className="hover:underline">
+          Trang chủ
+        </a>
+        <span className="mx-2">{">"}</span>
+        <span className="text-gray-800">Đăng nhập tài khoản</span>
       </div>
-      <div className="bg-white bg-opacity-10 border border-gray-500 rounded-xl p-8 w-[400px] shadow-lg backdrop-blur-md">
-        <h1 className="text-center text-white text-3xl font-bold mb-6">
-          Đăng nhập
-        </h1>
+      <motion.div 
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white shadow-lg rounded-lg p-8 w-96"
+      >
+        <h2 className="text-center text-2xl font-bold text-red-600 mb-4">ĐĂNG NHẬP</h2>
+        <div className="border-b-2 border-gray-300 mb-4"></div>
         <div className="mb-4">
-          <lable className="text-white block mb-2">Tài Khoản (Email) </lable>
+          <label className="block text-gray-700">Email</label>
           <input
-            className="w-full p-3 border-b border-white bg-transparent text-white placeholder-gray-300 focus:outline:-none"
-            type="text"
-            placeholder="Nhập email"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+            type="email"
+            placeholder="Nhập email của bạn"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <div>
-          <lable className="text-white block mb-2">Mật Khẩu</lable>
+        <div className="mb-4">
+          <label className="block text-gray-700">Mật khẩu</label>
           <input
-            className="w-full p-3 border-b border-white bg-transparent text-white placeholder-gray-300 focus:outline:-none"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-red-500"
             type="password"
             placeholder="Nhập mật khẩu"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button
+        <motion.button
           onClick={handleLogin}
-          disabled={loading}
-          className={`w-full ${
-            loading ? "bg-gray-400 cursor-not-allowed" : "bg-white hover:bg-gray-200"
-          } text-black rounded-full mt-3 py-3 font-semibold transition-all`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="w-full bg-red-600 text-white font-semibold py-3 rounded hover:bg-red-700 transition-all"
         >
-          {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-        </button>
-        <p className="text-white text-center mt-4">
-          Bạn chưa có tài khoản ? 
-          <a href="/register" className="font-semibold hover:text-gray-300 ml-2 underline">Đăng ký</a>
-        </p>
-      </div>
+          ĐĂNG NHẬP
+        </motion.button>
+        <div className="flex justify-between text-sm mt-4">
+          <a href="#" className="text-gray-600 hover:text-red-500">Quên mật khẩu?</a>
+          <a href="/register" className="text-gray-600 hover:text-red-500">Đăng ký tại đây</a>
+        </div>
+        <p className="text-center text-gray-600 mt-4">hoặc đăng nhập qua</p>
+        <div className="flex justify-center gap-4 mt-3">
+          <button className="bg-blue-700 text-white flex items-center px-4 py-2 rounded">
+            <i className="fab fa-facebook mr-2"></i> Facebook
+          </button>
+          <button className="bg-red-500 text-white flex items-center px-4 py-2 rounded">
+            <i className="fab fa-google mr-2"></i> Google
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 };

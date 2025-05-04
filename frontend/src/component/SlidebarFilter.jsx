@@ -1,58 +1,89 @@
 import { useState } from "react";
-import React from "react";
 
-const SidebarFilter = ({ filters, setFilters }) => {
-  const [category, setCategory] = useState(filters.category);
-  const [priceRange, setPriceRange] = useState(filters.priceRange);
+const SlidebarFilter = ({ filters, setFilters }) => {
+  const [category, setCategory] = useState(filters.category || "");
+  const [brand, setBrand] = useState(filters.brand || "");
+  const [size, setSize] = useState(filters.size || "");
+  const [color, setColor] = useState(filters.color || "");
+  const [priceRange, setPriceRange] = useState(
+    filters.priceRange || [0, 10000000]
+  );
 
-  // Cập nhật bộ lọc khi thay đổi giá trị
   const handleFilterChange = () => {
     setFilters({
       category,
-      priceRange: priceRange.join(","), // Chuyển thành chuỗi "min,max"
+      brand,
+      size,
+      color,
+      priceRange: priceRange.join(","),
     });
   };
 
+  const handlePriceClick = (range) => {
+    setPriceRange(
+      priceRange[0] === range[0] && priceRange[1] === range[1]
+        ? [0, 10000000]
+        : range
+    );
+  };
+
   return (
-    <div className="w-1/4 p-4 bg-gray-100">
-      <h2 className="text-lg font-bold mb-4">Lọc sản phẩm</h2>
+    <div className="flex flex-col max-w-64 justify-center shadow-lg rounded-xl gap-8 p-4 mb-6">
+      <h1 className="text-xl font-semibold p-2 text-center">Danh Mục</h1>
+      {["Giày thể thao", "Quần áo thể thao", "Phụ kiện thể thao"].map(
+        (item) => (
+          <button
+            key={item}
+            onClick={() => setCategory(category === item ? "" : item)}
+            className={`px-4 py-2 rounded-lg border ${
+              category === item ? "bg-green-500 text-white" : "bg-gray-200"
+            }`}
+          >
+            {item}
+          </button>
+        )
+      )}
 
-      {/* Lọc theo danh mục */}
-      <label className="block mb-2">Danh mục:</label>
-      <select
-        className="w-full p-2 border rounded"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-      >
-        <option value="">Tất cả</option>
-        <option value="giay">Giày</option>
-        <option value="ao">Áo</option>
-        <option value="quan">Quần</option>
-        <option value="phu-kien">Phụ Kiện Thể Thao</option>
-      </select>
+      <h1 className="text-xl font-semibold p-2 text-center">Thương Hiệu</h1>
+      {["Nike", "Adidas", "Puma"].map((item) => (
+        <button
+          key={item}
+          onClick={() => setBrand(brand === item ? "" : item)}
+          className={`px-4 py-2 rounded-lg border ${
+            brand === item ? "bg-red-500 text-white" : "bg-gray-200"
+          }`}
+        >
+          {item}
+        </button>
+      ))}
 
-      {/* Lọc theo khoảng giá */}
-      <label className="block mt-4">Khoảng giá:</label>
-      <input
-        type="range"
-        min="0"
-        max="10000000"
-        step="100000"
-        value={priceRange[1]}
-        onChange={(e) => setPriceRange([0, Number(e.target.value)])}
-        className="w-full"
-      />
-      <p className="text-sm">Tối đa: {priceRange[1].toLocaleString()} VND</p>
+      <h1 className="text-xl font-semibold p-2 text-center">Giá</h1>
+      {[
+        { label: "Dưới 500.000đ", range: [0, 500000] },
+        { label: "500.000đ - 1 triệu", range: [500000, 1000000] },
+        { label: "Trên 1 triệu", range: [1000000, 10000000] },
+      ].map(({ label, range }) => (
+        <button
+          key={label}
+          onClick={() => handlePriceClick(range)}
+          className={`px-4 py-2 rounded-lg border ${
+            priceRange[0] === range[0] && priceRange[1] === range[1]
+              ? "bg-blue-950 text-white"
+              : "bg-gray-200"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
 
-      {/* Nút áp dụng */}
       <button
         onClick={handleFilterChange}
-        className="mt-4 w-full bg-blue-500 text-white p-2 rounded"
+        className="px-6 py-2 bg-blue-500 text-white rounded-lg"
       >
-        Áp dụng
+        Lọc sản phẩm
       </button>
     </div>
   );
 };
 
-export default SidebarFilter;
+export default SlidebarFilter;
